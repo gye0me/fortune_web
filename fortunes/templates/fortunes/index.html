@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>폭신폭신 운세 배달 🐱</title>
+    <style>
+        :root {
+            --bg-yellow: #FFF9E3;
+            --main-purple: #E8D9FF;
+            --point-purple: #B8A2E1;
+            --text-dark: #5A4A75;
+            --card-white: #FFFFFF;
+        }
+
+        body {
+            background-color: var(--bg-yellow);
+            color: var(--text-dark);
+            font-family: 'Apple SD Gothic Neo', 'Pretendard', 'Malgun Gothic', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 440px; /* 긴 본문을 위해 너비를 살짝 넓혔습니다 */
+            background: var(--card-white);
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.07);
+            padding: 30px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* 상단 헤더 */
+        .header { text-align: center; margin-bottom: 25px; }
+        .cat-logo { font-size: 55px; margin-bottom: 5px; display: block; }
+        .date-tag {
+            display: inline-block;
+            background: var(--bg-yellow);
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--point-purple);
+            margin-top: 10px;
+        }
+
+        /* 안내 문구 */
+        .chat-bubble {
+            background: var(--main-purple);
+            padding: 20px 24px; /* 좌우 패딩을 살짝 늘려 안정감을 줌 */
+            border-radius: 25px 25px 25px 5px;
+            margin-bottom: 25px;
+            font-size: 16px; /* 글자 크기를 살짝 키움 */
+            line-height: 1.7; /* 줄 간격을 넓혀 읽기 편하게 조정 */
+            letter-spacing: -0.3px; /* 자간을 좁혀 응집력을 높임 */
+            word-break: keep-all; /* 단어 단위로 줄바꿈하여 가독성 향상 */
+            color: var(--text-dark);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .chat-bubble b {
+            color: #7B61AD; /* 강조 텍스트 색상을 조금 더 진하게 */
+            display: inline-block;
+            margin-top: 2px;
+        }
+
+        /* 입력 폼 */
+        input[type="date"] {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--main-purple);
+            border-radius: 22px;
+            font-size: 16px;
+            color: var(--text-dark);
+            outline: none;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        button {
+            width: 100%;
+            background: var(--point-purple);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 22px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(184, 162, 225, 0.4);
+        }
+
+        /* 결과 영역 */
+        .res-container {
+            margin-top: 35px;
+            border-top: 2px dashed var(--main-purple);
+            padding-top: 25px;
+        }
+        .res-box {
+            background: #FBF9FF;
+            padding: 25px;
+            border-radius: 30px;
+            margin-bottom: 25px;
+            border: 1px solid #F0EDF5;
+            position: relative;
+        }
+        .icon-badge {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 45px;
+            opacity: 0.9;
+        }
+        .title-label {
+            font-weight: bold;
+            font-size: 20px;
+            color: var(--point-purple);
+            display: block;
+            margin-bottom: 10px;
+        }
+        .score { color: #FFD700; font-size: 20px; margin-bottom: 15px; }
+        
+        /* fortune-text 부분만 아래 스타일로 보강해 주세요 */
+        .fortune-text {
+            font-size: 15px;
+            line-height: 1.9; /* 줄 간격을 넓혀 전문 서적 느낌을 줌 */
+            margin-bottom: 20px;
+            text-align: justify;
+            word-break: keep-all;
+            white-space: pre-wrap;
+            color: #333; /* 텍스트 색상을 조금 더 진하게 변경 */
+            letter-spacing: -0.2px; /* 자간 조정 */
+        }
+
+        .extra-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-top: 1px solid #EEE;
+            padding-top: 15px;
+            font-size: 13px;
+        }
+        .tag {
+            background: #FFFFFF;
+            padding: 5px 12px;
+            border-radius: 12px;
+            border: 1px solid #EEE;
+        }
+
+        /* 로딩 애니메이션 */
+        #loading { display: none; text-align: center; margin: 20px 0; }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 5px solid var(--bg-yellow);
+            border-top: 5px solid var(--point-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="header">
+        <span class="cat-logo">🐱</span>
+        <div class="date-tag">{{ result.today|default:"오늘의 운세 배달" }}</div>
+    </div>
+
+    <div class="chat-bubble">
+        안녕! 포털 사이트(NAVER)의 
+        <b>별자리 운세, 띠별운세</b>를<br>
+        한 번에 볼 수 있게 해줄게! ✨
+    </div>
+
+    <form method="post" onsubmit="showLoading()">
+        {% csrf_token %}
+        <input type="date" name="birth_date" required value="{{ birth_date|default:'' }}">
+        <button type="submit">전체 내용 배달받기 💌</button>
+    </form>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <div style="font-size: 13px; color: var(--point-purple);">상세 정보를 불러오는 중이다냥...</div>
+    </div>
+
+    {% if result %}
+    <div class="res-container">
+        <div class="res-box">
+            <span class="icon-badge">{{ result.star_icon }}</span>
+            <span class="title-label">{{ result.star_name }}</span>
+            <div class="score">{{ result.star_f.score }}</div>
+            <div class="fortune-text">{{ result.star_f.text|linebreaksbr }}</div>
+            <div class="extra-tags">
+                <span class="tag">🎨 행운색: <b>{{ result.star_f.color }}</b></span>
+                <span class="tag">⚠️ 주의: <b>{{ result.star_f.warning }}</b></span>
+            </div>
+        </div>
+
+        <div class="res-box">
+            <span class="icon-badge">{{ result.zodiac_icon }}</span>
+            <span class="title-label">{{ result.zodiac_name }}</span>
+            <div class="score">{{ result.zodiac_f.score }}</div>
+            <div class="fortune-text">{{ result.zodiac_f.text|linebreaksbr }}</div>
+            <div class="extra-tags">
+                <span class="tag">🎨 행운색: <b>{{ result.zodiac_f.color }}</b></span>
+                <span class="tag">⚠️ 주의: <b>{{ result.zodiac_f.warning }}</b></span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function showLoading() {
+        document.getElementById('loading').style.display = 'block';
+        const res = document.querySelector('.res-container');
+        if(res) res.style.opacity = '0.3';
+    }
+</script>
+
+</body>
+</html>
